@@ -1,29 +1,54 @@
-import { prisma } from "../index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import type { LoginDto, RegisterDto } from "../models/auth.dto.js";
-
+import { UserRepository } from "../repositories/index.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+const userRepository = new UserRepository();
 
 export async function register(data: RegisterDto) {
   const { username, email, password } = data;
-  const existing = await prisma.user.findFirst({ where: { OR: [{ email }, { username }] } });
+
+  // Business rule: Check if user already exists
+  const existing = await userRepository.findByEmailOrUsername(email, username);
   if (existing) throw new Error("User already exists");
+
+  // Business rule: Hash password for security
   const hashed = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: { username, email, password: hashed },
-    select: { id: true, username: true, email: true, createdAt: true },
+
+  // Create user through repository
+  const user = await userRepository.create({
+    username,
+    email,
+    password: hashed,
   });
+
   return user;
 }
 
 export async function login(data: LoginDto) {
   const { email, password } = data;
-  const user = await prisma.user.findUnique({ where: { email } });
+
+  // Business rule: Find user by email
+  const user = await userRepository.findByEmail(email);
   if (!user) throw new Error("Invalid credentials");
+
+  // Business rule: Validate password
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new Error("Invalid credentials");
+
+  // Business rule: Generate JWT token
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-  return { token, user: { id: user.id, username: user.username, email: user.email } };
+
+  // Update last seen (business rule: track user activity)
+  await userRepository.updateLastSeen(user.id);
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    },
+  };
 }
