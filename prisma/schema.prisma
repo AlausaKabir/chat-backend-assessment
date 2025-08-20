@@ -43,6 +43,8 @@ model RoomMember {
   room     Room     @relation(fields: [roomId], references: [id])
   roomId   Int
   joinedAt DateTime @default(now())
+
+  @@unique([userId, roomId])
 }
 
 model Message {

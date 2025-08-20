@@ -3,6 +3,9 @@ import type { Application } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import authRoutes from "./routes/auth.routes.js";
+import roomRoutes from "./routes/room.routes.js";
+import { authenticate } from "./middlewares/auth.js";
 
 // Load environment variables
 dotenv.config();
@@ -14,12 +17,14 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/rooms", authenticate, roomRoutes);
+
 // Health check route
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
-
-// TODO: Import and use routes here
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
