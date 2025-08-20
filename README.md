@@ -21,7 +21,7 @@ A real-time chat backend built with Node.js, Express, TypeScript, Socket.IO, and
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/AlausaKabir/chat-backend-assessment.git
 cd chat-backend-assessment
 ```
 
@@ -30,23 +30,19 @@ cd chat-backend-assessment
 npm install
 ```
 
-### 3. Set up environment variables
-Copy `.env.example` to `.env` and fill in the values:
-```bash
-cp .env.example .env
-```
 
-### 4. Start MySQL with Docker
+
+### 3. Start MySQL with Docker
 ```bash
 docker-compose up -d
 ```
 
-### 5. Run database migrations
+### 4. Run database migrations
 ```bash
 npx prisma migrate dev --name init
 ```
 
-### 6. Start the development server
+### 5. Start the development server
 ```bash
 npm run dev
 ```
