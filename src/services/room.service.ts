@@ -6,10 +6,10 @@ const roomRepository = new RoomRepository();
 const roomMemberRepository = new RoomMemberRepository();
 
 export async function createRoom(data: CreateRoomDto, userId: number) {
-  const { name, isPrivate } = data;
+  const { name, isPrivate = false } = data;
 
-  // Business rule: Generate invite code for private rooms
-  const inviteCode = isPrivate ? nanoid(10) : null;
+  // Business rule: Generate invite code for all rooms (for easy joining)
+  const inviteCode = nanoid(10);
 
   // Create room with creator as first member
   const room = await roomRepository.createWithMember(
@@ -25,27 +25,22 @@ export async function createRoom(data: CreateRoomDto, userId: number) {
 }
 
 export async function joinRoom(data: JoinRoomDto, userId: number) {
-  const { roomId, inviteCode } = data;
+  const { inviteCode } = data;
 
-  // Business rule: Check if room exists
-  const room = await roomRepository.findById(roomId);
-  if (!room) throw new Error("Room not found");
-
-  // Business rule: Validate invite code for private rooms
-  if (room.isPrivate && room.inviteCode !== inviteCode) {
-    throw new Error("Invalid invite code");
-  }
+  // Business rule: Check if room exists by invite code
+  const room = await roomRepository.findByInviteCode(inviteCode);
+  if (!room) throw new Error("Invalid invite code or room not found");
 
   // Business rule: Check if user is already a member
-  const existingMembership = await roomMemberRepository.findByUserAndRoom(userId, roomId);
+  const existingMembership = await roomMemberRepository.findByUserAndRoom(userId, room.id);
   if (existingMembership) {
-    return { message: "Already a member of this room" };
+    return { message: "Already a member of this room", room };
   }
 
   // Add user to room
-  await roomMemberRepository.upsert(userId, roomId);
+  await roomMemberRepository.upsert(userId, room.id);
 
-  return { message: "Joined room successfully" };
+  return { message: "Joined room successfully", room };
 }
 
 export async function listRooms(userId: number) {

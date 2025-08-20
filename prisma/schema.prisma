@@ -29,7 +29,7 @@ model Room {
   id         Int          @id @default(autoincrement())
   name       String
   isPrivate  Boolean      @default(false)
-  inviteCode String?      @unique
+  inviteCode String       @unique
   members    RoomMember[]
   messages   Message[]
   createdAt  DateTime     @default(now())

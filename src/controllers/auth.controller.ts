@@ -18,4 +18,14 @@ export const login = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(401).json(ResponseUtil.unauthorized(error.message));
   }
-};
+}
+
+  export const getUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await AuthService.getUsers();
+    res.status(200).json(ResponseUtil.success("Users retrieved successfully", users));
+  } catch (error: any) {
+    res.status(500).json(ResponseUtil.error("Failed to retrieve users", error.message));
+  }
+}
+

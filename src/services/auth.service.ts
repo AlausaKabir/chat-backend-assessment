@@ -51,4 +51,10 @@ export async function login(data: LoginDto) {
       email: user.email,
     },
   };
+
+
+}
+
+  export async function getUsers() {
+  return userRepository.findAll();
 }

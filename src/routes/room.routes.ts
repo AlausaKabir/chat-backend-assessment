@@ -4,8 +4,8 @@ import { validate } from "../middlewares/validate.js";
 
 const router = Router();
 
-router.post("/create", validate(["name", "isPrivate"]), RoomController.createRoom);
-router.post("/join", validate(["roomId"]), RoomController.joinRoom);
+router.post("/create", validate(["name"]), RoomController.createRoom);
+router.post("/join", validate(["inviteCode"]), RoomController.joinRoom);
 router.get("/my", RoomController.listRooms);
 
 export default router;

@@ -1,9 +1,8 @@
 export interface CreateRoomDto {
   name: string;
-  isPrivate: boolean;
+  isPrivate?: boolean;
 }
 
 export interface JoinRoomDto {
-  roomId: number;
-  inviteCode?: string;
+  inviteCode: string;
 }
