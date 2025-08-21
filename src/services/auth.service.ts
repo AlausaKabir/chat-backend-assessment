@@ -2,8 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import type { LoginDto, RegisterDto } from "../models/auth.dto.js";
 import { UserRepository } from "../repositories/index.js";
+import { config } from "../config/index.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 const userRepository = new UserRepository();
 
 export async function register(data: RegisterDto) {
@@ -14,7 +14,7 @@ export async function register(data: RegisterDto) {
   if (existing) throw new Error("User already exists");
 
   // Business rule: Hash password for security
-  const hashed = await bcrypt.hash(password, 10);
+  const hashed = await bcrypt.hash(password, config.bcryptSaltRounds);
 
   // Create user through repository
   const user = await userRepository.create({
@@ -38,7 +38,9 @@ export async function login(data: LoginDto) {
   if (!valid) throw new Error("Invalid credentials");
 
   // Business rule: Generate JWT token
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
+  const token = jwt.sign({ userId: user.id }, config.jwtSecret, {
+    expiresIn: config.jwtExpiresIn as any,
+  });
 
   // Update last seen (business rule: track user activity)
   await userRepository.updateLastSeen(user.id);
@@ -51,10 +53,8 @@ export async function login(data: LoginDto) {
       email: user.email,
     },
   };
-
-
 }
 
-  export async function getUsers() {
+export async function getUsers() {
   return userRepository.findAll();
 }

@@ -2,9 +2,10 @@ import { Server as SocketIOServer, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { MessageService } from "../services/message.service.js";
 import { UserRepository } from "../repositories/index.js";
+import { messageRateLimiter } from "../services/rate-limiter.service.js";
 import type { SendMessageSocketDto, JoinRoomSocketDto, TypingDto } from "../models/socket.dto.js";
+import { config } from "../config/index.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 const messageService = new MessageService();
 const userRepository = new UserRepository();
 
@@ -15,22 +16,35 @@ export function setupSocketIO(io: SocketIOServer) {
   // Socket.IO Authentication Middleware
   io.use(async (socket: Socket, next) => {
     try {
-      const token = socket.handshake.auth.token;
+      // Try to get token from auth object first, then from query parameters
+      const token = socket.handshake.auth.token || socket.handshake.query.token;
+      console.log("🔑 Socket.IO Authentication - Token received:", token);
+      console.log("🔍 Socket.IO Authentication - Auth object:", socket.handshake.auth);
+      console.log("🔍 Socket.IO Authentication - Query params:", socket.handshake.query);
+
       if (!token) {
+        console.log("❌ No token provided");
         return next(new Error("Authentication token required"));
       }
 
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+      console.log("🔐 Verifying token with secret...");
+      const decoded = jwt.verify(token as string, config.jwtSecret) as { userId: number };
+      console.log("✅ Token decoded:", decoded);
+
       const user = await userRepository.findById(decoded.userId);
+      console.log("👤 User found:", user);
 
       if (!user) {
+        console.log("❌ User not found in database");
         return next(new Error("Invalid token"));
       }
 
       // Attach user to socket
       socket.data.user = { id: user.id, username: user.username, email: user.email };
+      console.log("✅ User authenticated successfully:", user.username);
       next();
     } catch (error) {
+      console.log("❌ Authentication error:", error);
       next(new Error("Authentication failed"));
     }
   });
@@ -88,13 +102,40 @@ export function setupSocketIO(io: SocketIOServer) {
     });
 
     // Handle sending messages
-    socket.on("send_message", async (data: SendMessageSocketDto) => {
+    socket.on("message", async (data: SendMessageSocketDto) => {
       try {
+        console.log("📩 Raw data received:", JSON.stringify(data));
         const { roomId, content } = data;
 
+        // Rate limiting check
+        if (!messageRateLimiter.canSendMessage(user.id)) {
+          const resetTime = messageRateLimiter.getResetTime(user.id);
+          const waitTime = Math.ceil((resetTime - Date.now()) / 1000);
+
+          socket.emit("error", {
+            message: `Rate limit exceeded. You can send ${
+              config.messageLimitPerWindow
+            } messages per ${
+              config.messageLimitWindowMs / 1000
+            } seconds. Try again in ${waitTime} seconds.`,
+            type: "RATE_LIMIT_EXCEEDED",
+            resetTime,
+            waitTime,
+          });
+          return;
+        }
+
+        console.log("🔄 About to create message...");
         // Create message
         const message = await messageService.createMessage({ content, roomId }, user.id);
+        console.log("✅ Message created successfully:", message);
 
+        if (!message) {
+          console.log("❌ Message creation returned null/undefined");
+          throw new Error("Failed to create message");
+        }
+
+        console.log("📡 Broadcasting message to room:", `room_${roomId}`);
         // Broadcast to room (including sender)
         io.to(`room_${roomId}`).emit("receive_message", {
           id: message.id,
@@ -107,7 +148,19 @@ export function setupSocketIO(io: SocketIOServer) {
           createdAt: message.createdAt,
           timestamp: new Date().toISOString(),
         });
+        console.log("✅ Message broadcasted successfully");
+
+        // Send rate limit info to user
+        const remaining = messageRateLimiter.getRemainingMessages(user.id);
+        if (remaining <= 2) {
+          socket.emit("rate_limit_warning", {
+            remaining,
+            resetTime: messageRateLimiter.getResetTime(user.id),
+          });
+        }
       } catch (error: any) {
+        console.log("❌ Message handler error:", error);
+        console.log("❌ Error stack:", error.stack);
         socket.emit("error", { message: error.message });
       }
     });

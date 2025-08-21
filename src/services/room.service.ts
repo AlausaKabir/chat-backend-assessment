@@ -1,6 +1,7 @@
 import type { CreateRoomDto, JoinRoomDto } from "../models/room.dto.js";
 import { nanoid } from "nanoid";
 import { RoomRepository, RoomMemberRepository } from "../repositories/index.js";
+import { config } from "../config/index.js";
 
 const roomRepository = new RoomRepository();
 const roomMemberRepository = new RoomMemberRepository();
@@ -9,7 +10,7 @@ export async function createRoom(data: CreateRoomDto, userId: number) {
   const { name, isPrivate = false } = data;
 
   // Business rule: Generate invite code for all rooms (for easy joining)
-  const inviteCode = nanoid(10);
+  const inviteCode = nanoid(config.inviteCodeLength);
 
   // Create room with creator as first member
   const room = await roomRepository.createWithMember(
