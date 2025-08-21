@@ -1,8 +1,8 @@
 import type { Response } from "express";
-import * as RoomService from "../services/room.service.js";
-import { MessageService } from "../services/message.service.js";
-import type { AuthenticatedRequest } from "../middlewares/auth.js";
-import { ResponseUtil } from "../utils/response.util.js";
+import * as RoomService from "../services/room.service";
+import { MessageService } from "../services/message.service";
+import type { AuthenticatedRequest } from "../middlewares/auth";
+import { ResponseUtil } from "../utils/response.util";
 
 const messageService = new MessageService();
 

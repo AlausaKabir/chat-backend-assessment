@@ -1,6 +1,16 @@
 node_modules
-# Keep environment variables out of version control
+
+# Environment variables - NEVER commit these!
 .env
+.env.local
+.env.production
+.env.staging
+.env.development
+*.env
+
+# Deployment scripts with sensitive info
+deploy.sh
+deploy-*.sh
 
 # Prisma generated files
 /src/generated/prisma
@@ -21,3 +31,11 @@ dist/
 .vscode/
 .DS_Store
 *.log
+
+# Database files
+*.db
+*.sqlite
+
+# Temporary files
+tmp/
+temp/

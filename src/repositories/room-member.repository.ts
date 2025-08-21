@@ -1,4 +1,4 @@
-import { prisma } from "../index.js";
+import { prisma } from "../index";
 import type { RoomMember, Prisma } from "@prisma/client";
 
 export class RoomMemberRepository {

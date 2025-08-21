@@ -1,6 +1,6 @@
 import { Router } from "express";
-import * as RoomController from "../controllers/room.controller.js";
-import { validate } from "../middlewares/validate.js";
+import * as RoomController from "../controllers/room.controller";
+import { validate } from "../middlewares/validate";
 
 const router = Router();
 

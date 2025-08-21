@@ -1,7 +1,7 @@
-import type { CreateRoomDto, JoinRoomDto } from "../models/room.dto.js";
+import type { CreateRoomDto, JoinRoomDto } from "../models/room.dto";
 import { nanoid } from "nanoid";
-import { RoomRepository, RoomMemberRepository } from "../repositories/index.js";
-import { config } from "../config/index.js";
+import { RoomRepository, RoomMemberRepository } from "../repositories/index";
+import { config } from "../config/index";
 
 const roomRepository = new RoomRepository();
 const roomMemberRepository = new RoomMemberRepository();

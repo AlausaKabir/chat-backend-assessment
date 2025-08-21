@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { prisma } from "../index.js";
-import { config } from "../config/index.js";
+import { prisma } from "../index";
+import { config } from "../config/index";
 
 export interface AuthenticatedRequest extends Request {
   user?: {

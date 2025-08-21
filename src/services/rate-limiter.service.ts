@@ -1,4 +1,4 @@
-import { config } from "../config/index.js";
+import { config } from "../config/index";
 
 interface MessageAttempt {
   timestamp: number;
@@ -34,9 +34,6 @@ export class MessageRateLimiter {
 
     // Check if user exceeded limit
     if (messagesInWindow >= maxMessages) {
-      console.log(
-        `🚫 Rate limit exceeded for user ${userId}: ${messagesInWindow}/${maxMessages} messages in ${windowMs}ms`
-      );
       return false;
     }
 
@@ -49,11 +46,6 @@ export class MessageRateLimiter {
     // Update attempts map
     this.attempts.set(key, userAttempts);
 
-    console.log(
-      `✅ Rate limit check passed for user ${userId}: ${
-        messagesInWindow + 1
-      }/${maxMessages} messages in window`
-    );
     return true;
   }
 
