@@ -2,6 +2,19 @@ import { prisma } from "../index.js";
 import type { User, Prisma } from "@prisma/client";
 
 export class UserRepository {
+  async create(data: Prisma.UserCreateInput): Promise<Omit<User, "password">> {
+    return prisma.user.create({
+      data,
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        lastSeen: true,
+      },
+    });
+  }
   async findById(id: number): Promise<User | null> {
     return prisma.user.findUnique({ where: { id } });
   }
@@ -18,9 +31,8 @@ export class UserRepository {
     });
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<Omit<User, "password">> {
-    return prisma.user.create({
-      data,
+  async findAll(): Promise<Omit<User, "password">[]> {
+    return prisma.user.findMany({
       select: {
         id: true,
         username: true,

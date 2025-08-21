@@ -6,6 +6,10 @@ export class RoomRepository {
     return prisma.room.findUnique({ where: { id } });
   }
 
+  async findByInviteCode(inviteCode: string): Promise<Room | null> {
+    return prisma.room.findUnique({ where: { inviteCode } });
+  }
+
   async create(data: Prisma.RoomCreateInput): Promise<Room> {
     return prisma.room.create({ data });
   }

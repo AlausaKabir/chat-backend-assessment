@@ -2,4 +2,22 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+# Prisma generated files
 /src/generated/prisma
+
+# TypeScript compilation artifacts
+dist/
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# But keep important JS config files
+!tsconfig.json
+!jest.config.js
+!package.json
+
+# IDE and OS files
+.vscode/
+.DS_Store
+*.log

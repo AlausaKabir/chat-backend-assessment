@@ -1,8 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../index.js";
-
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+import { config } from "../config/index.js";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -19,7 +18,7 @@ export async function authenticate(req: AuthenticatedRequest, res: Response, nex
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const decoded = jwt.verify(token, config.jwtSecret) as { userId: number };
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: { id: true, username: true, email: true },
