@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import type { LoginDto, RegisterDto } from "../models/auth.dto.js";
-import { UserRepository } from "../repositories/index.js";
-import { config } from "../config/index.js";
+import type { LoginDto, RegisterDto } from "../models/auth.dto";
+import { UserRepository } from "../repositories/index";
+import { config } from "../config/index";
 
 const userRepository = new UserRepository();
 

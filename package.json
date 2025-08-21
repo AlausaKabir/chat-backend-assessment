@@ -1,19 +1,19 @@
 {
   "name": "chat-backend-assessment",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Real-time chat backend with Node.js, Express, Socket.IO, and MySQL",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch src --ext ts,js,mjs,cjs,json --exec \"node --loader ts-node/esm src/index.ts\"",
+    "dev": "nodemon --watch src --ext ts --exec \"ts-node src/index.ts\"",
     "build": "tsc",
     "start": "node dist/index.js",
+    "prebuild": "rimraf dist",
     "postinstall": "npm run build"
   },
-  "keywords": [],
+  "keywords": ["chat", "realtime", "socket.io", "nodejs", "typescript"],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@prisma/client": "^6.14.0",
     "bcrypt": "^6.0.0",
@@ -34,9 +34,12 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
     "nodemon": "^3.1.10",
+    "rimraf": "^3.0.2",
     "socket.io-client": "^4.8.1",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

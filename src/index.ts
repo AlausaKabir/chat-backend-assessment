@@ -4,11 +4,11 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-import authRoutes from "./routes/auth.routes.js";
-import roomRoutes from "./routes/room.routes.js";
-import { authenticate } from "./middlewares/auth.js";
-import { setupSocketIO } from "./sockets/chat.socket.js";
-import { config, validateConfig } from "./config/index.js";
+import authRoutes from "./routes/auth.routes";
+import roomRoutes from "./routes/room.routes";
+import { authenticate } from "./middlewares/auth";
+import { setupSocketIO } from "./sockets/chat.socket";
+import { config, validateConfig } from "./config/index";
 
 // Validate configuration on startup
 validateConfig();

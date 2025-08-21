@@ -1,4 +1,4 @@
-import { prisma } from "../index.js";
+import { prisma } from "../index";
 import type { Message, Prisma } from "@prisma/client";
 
 export class MessageRepository {
